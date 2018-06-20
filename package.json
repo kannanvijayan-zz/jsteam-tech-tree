@@ -1,0 +1,19 @@
+{
+  "name": "jsteam-tech-tree",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && cp tech-tree.yaml dist/",
+    "main": "node ./dist/index.js"
+  },
+  "author": "Kannan Vijayan <kannan@vijayan.ca>",
+  "license": "GPLv3",
+  "dependencies": {
+    "js-yaml": "^3.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.3.4",
+    "typescript": "^2.9.2"
+  }
+}

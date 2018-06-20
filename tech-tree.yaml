@@ -1,0 +1,105 @@
+---
+categories:
+    Unknown:
+        shortName: 'unknown'
+        color: 'gray'
+    Performance:
+        shortName: 'perf'
+        color: 'green'
+    Security:
+        shortName: 'sec'
+        color: 'red'
+    Feature:
+        shortName: 'feat'
+        color: 'blue'
+    Community:
+        shortName: 'comm'
+        color: 'yellow'
+    TechDebt:
+        shortName: 'debt'
+        color: 'brown'
+    Architecture:
+        shortName: 'arch'
+        color: 'cyan'
+workSizes:
+    Days:
+        renderSize: 1
+    Weeks:
+        renderSize: 2
+    Months:
+        renderSize: 3
+    Quarters:
+        renderSize: 4
+tasks:
+
+    # * Decoupling Bytecode
+    # * Bytecode iterator
+    # * BaselineInspector replacement
+    # * Source note refactor and removal
+    # Ion CFG should use BytecodeIterator
+    # Bailouts should use BytecodeIterator
+    # Debugger stepping should use BytecodeIterator
+    # Error stacks should use BytecodeIterator
+    # XDR should use BytecodeIterator
+    # Ion inlining logic should use BytecodeIterator
+    # Convert TypeInference ObjectGroup sites and heuristics to use
+    #   BytecodeIterator
+    # Convert StackDepth computations to use BytecodeIterator
+    # * Replace all uses of jsbytecode* with opaque type
+    # * Replace pc offset with opaque wrapper
+
+    decouple_bytecode:
+        workSize: 'months'
+        category: 'debt'
+        description: |
+            There are too many components that look directly
+            at bytecode, including TI (for heuristics, static
+            analysis of constructor functions, etc.), all
+            the compilers, etc.
+
+    bytecode_iterator:
+        workSize: 'weeks'
+        category: 'debt'
+        blocks: ['decouple_bytecode']
+        description: |
+            Write a bytecode iterator constructor that allows
+            for an abstract traversal of the bytecode as
+            an abstract CFG with individual instructions.
+
+    kill_jsbytecode_star:
+        workSize: 'weeks'
+        category: 'debt'
+        blocks: ['decouple_bytecode']
+        needs: ['bytecode_iterator']
+        description: |
+            Replace all uses of jsbytecode* outside of the
+            interpreter with an opaque wrapper.
+
+    kill_pcoffset:
+        workSize: 'weeks'
+        category: 'debt'
+        blocks: ['decouple_bytecode']
+        needs: ['bytecode_iterator']
+        description: |
+            Replace all uses of pcOffset outside of the
+            interpreter with an opaque wrapper.
+
+    rewrite_baseline_inspector:
+        workSize: 'weeks'
+        category: 'debt'
+        needs: ['bytecode_iterator']
+        description: |
+            Rewrite the BaselineInspector to use the
+            new BytecodeIterator (???).
+
+    refactor_source_notes:
+        workSize: 'weeks'
+        category: 'debt'
+        blocks: ['decouple_bytecode']
+        description: |
+            Remove all semantic information from SourceNotes.
+            Source notes should be purely for annotations
+            mapping bytcode to source text, or should not
+            exist.  Information like loop-depth, etc. should
+            be kept in a separate structure.
+...
