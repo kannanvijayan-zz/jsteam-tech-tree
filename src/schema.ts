@@ -282,6 +282,7 @@ export class Graph {
                 result.push(`    task.name} {\n`);
             }
         });
+        return result.join('');
     }
 }
 
