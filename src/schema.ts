@@ -136,6 +136,14 @@ export class Task {
         return true;
     }
 
+    slugName(): string {
+        return this.name.replace(/\s+/, '_');
+    }
+
+    labelName(): string {
+        return this.slugName().replace(/_/g, '\n');
+    }
+
     taskString(): string {
         return `Task ${this.name} @${this.category.catString()}`;
     }
