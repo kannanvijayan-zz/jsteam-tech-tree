@@ -246,14 +246,14 @@ export class Graph {
         while (allTasks.size > 0) {
             const startSet: Set<Task> = new Set();
             for (let task of allTasks) {
-                let hasNeeds: boolean = false;
-                for (let neededTask of task.needs) {
-                    if (! handledTasks.has(neededTask)) {
-                        hasNeeds = true;
+                let hasBlocks: boolean = false;
+                for (let blockedTask of task.blocks) {
+                    if (! handledTasks.has(blockedTask)) {
+                        hasBlocks = true;
                         break;
                     }
                 }
-                if (! hasNeeds) {
+                if (! hasBlocks) {
                     startSet.add(task);
                 }
             }
