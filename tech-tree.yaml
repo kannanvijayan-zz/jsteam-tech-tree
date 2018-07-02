@@ -17,7 +17,7 @@ categories:
         color: 'yellow'
     TechDebt:
         shortName: 'debt'
-        color: 'brown'
+        color: 'orange'
     Architecture:
         shortName: 'arch'
         color: 'cyan'
@@ -30,6 +30,8 @@ workSizes:
         renderSize: 3
     Quarters:
         renderSize: 4
+    Unknown:
+        renderSize: 1
 tasks:
 
     # * Decoupling Bytecode
@@ -60,7 +62,6 @@ tasks:
     bytecode_iterator:
         workSize: 'weeks'
         category: 'debt'
-        blocks: ['decouple_bytecode']
         description: |
             Write a bytecode iterator constructor that allows
             for an abstract traversal of the bytecode as
@@ -87,6 +88,7 @@ tasks:
     rewrite_baseline_inspector:
         workSize: 'weeks'
         category: 'debt'
+        blocks: ['decouple_bytecode']
         needs: ['bytecode_iterator']
         description: |
             Rewrite the BaselineInspector to use the
@@ -102,4 +104,44 @@ tasks:
             mapping bytcode to source text, or should not
             exist.  Information like loop-depth, etc. should
             be kept in a separate structure.
+
+    class_features:
+        workSize: 'quarters'
+        category: 'feat'
+        description: |
+            Class-related feature implementation.
+
+    static_fields:
+        workSize: 'weeks'
+        category: 'feat'
+        blocks: ['class_features']
+        description: |
+            Implement static fields.
+
+    private_fields:
+        workSize: 'weeks'
+        category: 'feat'
+        blocks: ['class_features']
+        description: |
+            Implement private fields.
+
+    module_features:
+        workSize: 'quarters'
+        category: 'feat'
+        description: |
+            Module-related feature implementation.
+
+    dynamic_import:
+        workSize: 'months'
+        category: 'feat'
+        blocks: ['module_features']
+        description: |
+            Implement "dynamic import()".
+
+    import_dot_meta:
+        workSize: 'weeks'
+        category: 'feat'
+        blocks: ['module_features']
+        description: |
+            Implement "import.meta".
 ...
