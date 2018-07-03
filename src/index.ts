@@ -3,6 +3,7 @@ import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 
 import {liftGraph, Task, WorkSize, Category} from './schema';
+import {renderGraphSvg} from './visualize';
 
 function main() {
     const data = fs.readFileSync('tech-tree.yaml', 'utf8');
@@ -16,8 +17,17 @@ function main() {
         }
     });
     */
-    console.log(generateDotFile(graph));
-    // console.log(JSON.stringify(json, null, 2));
+    const dotStr: string = generateDotFile(graph);
+    renderGraphSvg(dotStr).then((svgStr: string) => {
+        // console.log("-- DOT\n------\n");
+        console.log(`//${process.argv.join(' ')}\n`);
+        console.log(dotStr);
+        // console.log("\n\n-- SVG\n------\n");
+        // console.log(svgStr);
+        // console.log(JSON.stringify(json, null, 2));
+    }).catch(err => {
+        console.log("ERROR: " + err.toString());
+    });
 }
 
 const GRAPH_ATTRS: object = {
@@ -31,6 +41,7 @@ const NODE_ATTRS: object = {
     style: "solid,rounded,filled",
     fontsize: 18,
     pad: 1,
+    penwidth: 4,
 };
 const EDGE_ATTRS: object = {
     weight: 3,
@@ -70,23 +81,36 @@ function generateDotFile(graph): string {
 function taskNodeAttrs(task: Task): object {
     const result: object = {};
     Object.assign(result, workSizeToAttrs(task.workSize));
-    Object.assign(result, categoryToAttrs(task.category));
+    Object.assign(result, categoryToAttrs(task));
     return result;
 }
 
 function workSizeToAttrs(workSize: WorkSize): object {
     switch (workSize.renderSize) {
-      case 1: return {shape:'triangle', width:1, height:1, fontsize:16};
-      case 2: return {shape:'circle', width:1.5, height:1.3, fontsize:18};
-      case 3: return {shape:'hexagon', width:2.5, height:1.8, fontsize:24};
-      case 4: return {shape:'rectangle', width:5, height:3, fontsize:36};
+      case 1: return {shape:'triangle', width:2.6, height:2.6,
+                      fontsize:16, penwidth:2};
+      case 2: return {shape:'circle', width:2.5, height:2.5,
+                      fontsize:18, penwidth:4};
+      case 3: return {shape:'hexagon', width:4, height:3,
+                      fontsize:24, penwidth:8};
+      case 4: return {shape:'rectangle', width:5, height:3,
+                      fontsize:36, penwidth:16};
       default:
         throw new Error("Bad render size: " + workSize.renderSize);
     }
 }
 
-function categoryToAttrs(category: Category): object {
-    return {color: category.color as string}
+function categoryToAttrs(task: Task): object {
+    const category = task.category;
+    if (task.done) {
+        return {fillcolor: category.doneColor as string,
+                color: category.doneBorderColor as string,
+                fontcolor: '#606060'}
+    } else {
+        return {fillcolor: category.color as string,
+                color: category.borderColor as string,
+                fontcolor: '#101010'}
+    }
 }
 
 function attrsToString(attrs: object) {

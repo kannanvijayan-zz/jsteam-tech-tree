@@ -10,7 +10,10 @@
   "author": "Kannan Vijayan <kannan@vijayan.ca>",
   "license": "GPLv3",
   "dependencies": {
-    "js-yaml": "^3.12.0"
+    "color": "^3.0.0",
+    "color-string": "^1.5.2",
+    "js-yaml": "^3.12.0",
+    "viz.js": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "^10.3.4",

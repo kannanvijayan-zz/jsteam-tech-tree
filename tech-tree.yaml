@@ -2,16 +2,16 @@
 categories:
     Unknown:
         shortName: 'unknown'
-        color: 'gray'
+        color: '#808080'
     Performance:
         shortName: 'perf'
-        color: 'green'
+        color: '#40c040'
     Security:
         shortName: 'sec'
-        color: 'red'
+        color: '#c04040'
     Feature:
         shortName: 'feat'
-        color: 'blue'
+        color: '#4040c0'
     Community:
         shortName: 'comm'
         color: 'yellow'
@@ -20,8 +20,10 @@ categories:
         color: 'orange'
     Architecture:
         shortName: 'arch'
-        color: 'cyan'
+        color: '#40c0c0'
 workSizes:
+    Unknown:
+        renderSize: 1
     Days:
         renderSize: 1
     Weeks:
@@ -30,8 +32,6 @@ workSizes:
         renderSize: 3
     Quarters:
         renderSize: 4
-    Unknown:
-        renderSize: 1
 tasks:
 
     # * Decoupling Bytecode
@@ -50,6 +50,10 @@ tasks:
     # * Replace all uses of jsbytecode* with opaque type
     # * Replace pc offset with opaque wrapper
 
+    ##
+    ## Bytecode Decoupling
+    ##
+
     decouple_bytecode:
         workSize: 'months'
         category: 'debt'
@@ -62,6 +66,7 @@ tasks:
     bytecode_iterator:
         workSize: 'weeks'
         category: 'debt'
+        done: true
         description: |
             Write a bytecode iterator constructor that allows
             for an abstract traversal of the bytecode as
@@ -105,6 +110,11 @@ tasks:
             exist.  Information like loop-depth, etc. should
             be kept in a separate structure.
 
+    ##
+    ## Language Features
+    ##
+
+
     class_features:
         workSize: 'quarters'
         category: 'feat'
@@ -122,6 +132,7 @@ tasks:
         workSize: 'weeks'
         category: 'feat'
         blocks: ['class_features']
+        done: true
         description: |
             Implement private fields.
 
@@ -144,4 +155,79 @@ tasks:
         blocks: ['module_features']
         description: |
             Implement "import.meta".
+
+    ##
+    ## Security
+    ##
+
+    spectre_jit_mitigations:
+        workSize: 'months'
+        category: 'sec'
+        done: true
+        description: |
+            SPECTRE security work - jit mitigations.
+
+    ##
+    ## Shypes
+    ##
+
+    hidden_type_api:
+        workSize: 'weeks'
+        category: 'debt'
+        description: |
+            Segregate the compiler's usage of the hidden type
+            system (shapes and object groups) with an API
+            that clearly expresses the queries being
+            performed, constraints being attached, and
+            inferences being guaranteed.
+
+    jit_json_to_plain_obj:
+        workSize: 'days'
+        category: 'arch'
+        description: |
+            Convert the JSON.parse JIT to use
+            plain objects instead of unboxed
+            objects.
+
+    rm_unboxed_objects:
+        workSize: 'days'
+        category: 'arch'
+        needs: ['jit_json_to_plain_obj']
+        description: |
+            Remove unboxed object support.
+
+    measure_telescoping_proto_chains:
+        workSize: 'days'
+        category: 'arch'
+        description: |
+            Measure the benefits of telescoping proto
+            chains and how much of a performance impact
+            would be had by disabling them and always
+            emitting proto-chain walks.
+
+    rm_telescoping_proto_chain:
+        workSize: 'days'
+        category: 'arch'
+        needs: ['measure_telescoping_proto_chains']
+        description: |
+            Remove support for telescoping proto chains.
+
+    measure_shape_group_rooting:
+        workSize: 'days'
+        category: 'arch'
+        description: |
+            Measure and calculate numbers for the amount
+            of type-divergence that would be introduced by
+            having every group root the shape tree of
+            its instances.
+
+    root_shape_in_groups:
+        workSize: 'weeks'
+        category: 'arch'
+        needs: ['rm_unboxed_objects', 'rm_telescoping_proto_chain',
+                'measure_shape_group_rooting']
+        description: |
+            Root shape trees within groups, adding a group-pointer
+            to each shape.  Remove group pointer from JSObjects,
+            as shape now implies the group.
 ...

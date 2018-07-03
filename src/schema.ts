@@ -1,5 +1,6 @@
 
 import * as assert from 'assert';
+import * as color from 'color';
 
 //
 // Helpers
@@ -58,6 +59,9 @@ export class Category {
     readonly name: string;
     readonly shortName: string;
     readonly color: string;
+    readonly borderColor: string;
+    readonly doneColor: string;
+    readonly doneBorderColor: string;
 
     constructor(params: {name: string,
                          shortName: string,
@@ -66,6 +70,9 @@ export class Category {
         this.name = params.name;
         this.shortName = params.shortName;
         this.color = params.color;
+        this.borderColor = Category.computeBorderColor(this.color);
+        this.doneColor = Category.computeDoneColor(this.color);
+        this.doneBorderColor = Category.computeDoneBorderColor(this.color);
         Object.freeze(this);
     }
 
@@ -76,6 +83,17 @@ export class Category {
 
     catString(): string {
         return this.name;
+    }
+
+    static computeBorderColor(colorStr: string): string {
+        return color(colorStr).darken(0.5).rgb().hex();
+    }
+    static computeDoneColor(colorStr: string): string {
+        return color(colorStr).desaturate(0.4).lighten(0.2).rgb().hex();
+    }
+    static computeDoneBorderColor(colorStr: string): string {
+        const c = color(Category.computeDoneColor(colorStr));
+        return c.darken(0.3).rgb().hex();
     }
 }
 
@@ -106,11 +124,13 @@ export class Task {
     readonly category: Category;
     readonly needs: Array<Task>;
     readonly blocks: Array<Task>;
+    readonly done: boolean;
 
     constructor(params: {name: string,
                          description: string,
                          workSize: WorkSize,
-                         category: Category})
+                         category: Category,
+                         done: boolean})
     {
         this.name = params.name;
         this.description = params.description;
@@ -118,6 +138,7 @@ export class Task {
         this.category = params.category;
         this.needs = new Array<Task>();
         this.blocks = new Array<Task>();
+        this.done = params.done;
         Object.freeze(this);
     }
 
@@ -229,8 +250,10 @@ export class Graph {
         const description: string = "Auto-filled unknown task"
         const category: Category = this.getCategory("unknown");
         const workSize: WorkSize = this.getWorkSize("unknown");
+        const done: boolean = false;
 
-        return this.addTask(new Task({name, description, workSize, category}));
+        const task = new Task({name, description, workSize, category, done});
+        return this.addTask(task);
     }
 
     makeLayers() {
@@ -368,6 +391,7 @@ function liftTask(taskName: string, taskJson: any, g: Graph): Task {
     assertType(taskJson.description, 'string');
     assertType(taskJson.workSize, 'string');
     assertType(taskJson.category, ['string', 'undefined']);
+    assert(!('done' in taskJson) || (typeof(taskJson.done) === 'boolean'));
 
     const name = taskName as string;
     const description = taskJson.description as string;
@@ -376,8 +400,9 @@ function liftTask(taskName: string, taskJson: any, g: Graph): Task {
         ('category' in taskJson) ?
             taskJson.category as string
           : 'unknown')
+    const done: boolean = taskJson.done as boolean;
 
-    return new Task({name, description, workSize, category});
+    return new Task({name, description, workSize, category, done});
 }
 
 function fillTaskDeps(taskName: string, taskJson: any, g: Graph): void {
